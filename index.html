@@ -1,0 +1,634 @@
+<html lang="en"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management System</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- jQuery Validate -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+    
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <!-- jQuery LoadingOverlay -->
+    <script src="https://cdn.jsdelivr.net/npm/gasparesganga-jquery-loading-overlay@2.1.7/dist/loadingoverlay.min.js"></script>
+    
+    <!-- Font Awesome for spinner -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    
+    <style>
+        .dataTables_wrapper .dataTables_length, 
+        .dataTables_wrapper .dataTables_filter, 
+        .dataTables_wrapper .dataTables_info, 
+        .dataTables_wrapper .dataTables_processing, 
+        .dataTables_wrapper .dataTables_paginate {
+            color: #1e40af !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+            background: #93c5fd !important;
+            color: white !important;
+            border: none !important;
+        }
+        
+        .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+            background: #60a5fa !important;
+            color: white !important;
+            border: none !important;
+        }
+        
+        table.dataTable thead th, table.dataTable thead td {
+            border-bottom: 1px solid #dbeafe !important;
+        }
+        
+        table.dataTable.no-footer {
+            border-bottom: 1px solid #dbeafe !important;
+        }
+        
+        .error {
+            color: #ef4444;
+            font-size: 0.75rem;
+            margin-top: 0.25rem;
+        }
+        
+        /* Custom spinner for LoadingOverlay */
+        .custom-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Footer styling */
+        footer {
+            background: linear-gradient(to right, #1e40af, #3b82f6);
+            color: white;
+            padding: 1rem 0;
+            box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+
+<body class="bg-blue-50 min-h-screen flex flex-col">
+    <div class="container mx-auto px-4 py-8 flex-grow">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-blue-800 text-center">User Management System</h1>
+            <p class="text-blue-600 text-center mt-2">Simple CRUD application with Google Sheets backend</p>
+        </header>
+        
+        <div class="bg-white rounded-lg shadow-lg p-6 mb-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-semibold text-blue-700">User List</h2>
+                <button id="addUserBtn" class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-300 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path>
+                    </svg>
+                    Add New User
+                </button>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <div id="userTable_wrapper" class="dataTables_wrapper no-footer">
+                    <div class="dataTables_length" id="userTable_length">
+                        <table id="userTable" class="w-full text-left dataTable no-footer" aria-describedby="userTable_info">
+                    <thead class="bg-blue-100">
+                        <tr><th class="px-4 py-3 sorting sorting_asc" tabindex="0" aria-controls="userTable" rowspan="1" colspan="1" aria-label="Registration Date: activate to sort column descending" aria-sort="ascending" style="width: 321.234px;">Registration Date</th><th class="px-4 py-3 sorting" tabindex="0" aria-controls="userTable" rowspan="1" colspan="1" aria-label="Name: activate to sort column ascending" style="width: 136.047px;">Name</th><th class="px-4 py-3 sorting" tabindex="0" aria-controls="userTable" rowspan="1" colspan="1" aria-label="Telephone: activate to sort column ascending" style="width: 206.312px;">Telephone</th><th class="px-4 py-3 sorting" tabindex="0" aria-controls="userTable" rowspan="1" colspan="1" aria-label="Email: activate to sort column ascending" style="width: 128.172px;">Email</th><th class="px-4 py-3 sorting" tabindex="0" aria-controls="userTable" rowspan="1" colspan="1" aria-label="Role: activate to sort column ascending" style="width: 111.422px;">Role</th><th class="px-4 py-3 sorting" tabindex="0" aria-controls="userTable" rowspan="1" colspan="1" aria-label="Status: activate to sort column ascending" style="width: 139.875px;">Status</th><th class="px-4 py-3 sorting" tabindex="0" aria-controls="userTable" rowspan="1" colspan="1" aria-label="Actions: activate to sort column ascending" style="width: 160.938px;">Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will be loaded here-->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer class="mt-auto">
+        <div class="container mx-auto px-4 py-3 text-center">
+            <p class="flex items-center justify-center">
+                <span>พัฒนาโดย ไวไว ใจดี | </span>
+                <span class="font-medium ml-1">Waiwai-iT</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2 text-yellow-300" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                </svg>
+            </p>
+        </div>
+    </footer>
+    
+    <!-- Add/Edit User Modal -->
+    <div id="userModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+            <div class="flex justify-between items-center mb-4">
+                <h3 id="modalTitle" class="text-xl font-semibold text-blue-700">Add New User</h3>
+                <button id="closeModal" class="text-gray-400 hover:text-gray-600">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <form id="userForm" class="space-y-4" novalidate="novalidate">
+                <input type="hidden" id="originalEmail">
+                
+                <div>
+                    <label for="name" class="block text-sm font-medium text-blue-700 mb-1">Name</label>
+                    <input type="text" id="name" name="name" class="w-full px-3 py-2 border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div>
+                    <label for="tel" class="block text-sm font-medium text-blue-700 mb-1">Telephone</label>
+                    <input type="text" id="tel" name="tel" class="w-full px-3 py-2 border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div>
+                    <label for="email" class="block text-sm font-medium text-blue-700 mb-1">Email</label>
+                    <input type="email" id="email" name="email" class="w-full px-3 py-2 border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                
+                <div>
+                    <label for="role" class="block text-sm font-medium text-blue-700 mb-1">Role</label>
+                    <select id="role" name="role" class="w-full px-3 py-2 border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                        <option value="manager">Manager</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="status" class="block text-sm font-medium text-blue-700 mb-1">Status</label>
+                    <select id="status" name="status" class="w-full px-3 py-2 border border-blue-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                </div>
+                
+                <div class="flex justify-end space-x-3 pt-2">
+                    <button type="button" id="cancelBtn" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition duration-300">Cancel</button>
+                    <button type="submit" id="saveBtn" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Custom loading spinner element -->
+    <div id="customSpinner" style="display: none;">
+        <div class="custom-spinner"></div>
+    </div>
+    
+    <script>
+        $(document).ready(function() {
+            const API_URL = 'https://script.google.com/macros/s/AKfycbzsP6nszksTwTD9KLoOYQ3F-_fvkrDxjzeYeeS3K704hhH8zDmGzQuRivsima_HCCEu-Q/exec';
+            
+            // Configure LoadingOverlay with custom spinner
+            $.LoadingOverlaySetup({
+                background: "rgba(0, 0, 0, 0.5)",
+                image: "",
+                custom: $("#customSpinner").html(),
+                customAnimation: "",
+                fade: [200, 100]
+            });
+            
+            // Initialize DataTable
+            const userTable = $('#userTable').DataTable({
+                columns: [
+                    { data: 'regdate' },
+                    { data: 'name' },
+                    { data: 'tel' },
+                    { data: 'email' },
+                    { data: 'role' },
+                    { 
+                        data: 'status',
+                        render: function(data) {
+                            let badgeClass = 'px-2 py-1 rounded-full text-xs font-medium';
+                            if (data === 'active') {
+                                badgeClass += ' bg-green-100 text-green-800';
+                            } else if (data === 'inactive') {
+                                badgeClass += ' bg-red-100 text-red-800';
+                            } else {
+                                badgeClass += ' bg-yellow-100 text-yellow-800';
+                            }
+                            return `<span class="${badgeClass}">${data}</span>`;
+                        }
+                    },
+                    { 
+                        data: null,
+                        render: function(data) {
+                            return `
+                                <div class="flex space-x-2">
+                                    <button class="edit-btn text-blue-600 hover:text-blue-800" data-email="${data.email}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                        </svg>
+                                    </button>
+                                    <button class="delete-btn text-red-600 hover:text-red-800" data-email="${data.email}">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            `;
+                        }
+                    }
+                ],
+                responsive: true,
+                language: {
+                    emptyTable: "No users found",
+                    info: "Showing _START_ to _END_ of _TOTAL_ users",
+                    search: "Search:",
+                    paginate: {
+                        first: "First",
+                        last: "Last",
+                        next: "Next",
+                        previous: "Previous"
+                    }
+                }
+            });
+            
+            // Form validation
+            $('#userForm').validate({
+                rules: {
+                    name: {
+                        required: true,
+                        minlength: 2
+                    },
+                    tel: {
+                        required: true,
+                        minlength: 9
+                    },
+                    email: {
+                        required: true,
+                        email: true
+                    },
+                    role: {
+                        required: true
+                    },
+                    status: {
+                        required: true
+                    }
+                },
+                messages: {
+                    name: {
+                        required: "Please enter a name",
+                        minlength: "Name must be at least 2 characters"
+                    },
+                    tel: {
+                        required: "Please enter a telephone number",
+                        minlength: "Telephone must be at least 9 digits"
+                    },
+                    email: {
+                        required: "Please enter an email address",
+                        email: "Please enter a valid email address"
+                    },
+                    role: {
+                        required: "Please select a role"
+                    },
+                    status: {
+                        required: "Please select a status"
+                    }
+                },
+                errorElement: 'span',
+                errorPlacement: function(error, element) {
+                    error.addClass('error');
+                    error.insertAfter(element);
+                },
+                highlight: function(element) {
+                    $(element).addClass('border-red-500').removeClass('border-blue-200');
+                },
+                unhighlight: function(element) {
+                    $(element).removeClass('border-red-500').addClass('border-blue-200');
+                },
+                submitHandler: function(form) {
+                    saveUser();
+                }
+            });
+            
+            // Load users on page load
+            loadUsers();
+            
+            // Event listeners
+            $('#addUserBtn').on('click', openAddUserModal);
+            $('#closeModal, #cancelBtn').on('click', closeUserModal);
+            $(document).on('click', '.edit-btn', handleEditUser);
+            $(document).on('click', '.delete-btn', handleDeleteUser);
+            
+            // Functions
+            function loadUsers() {
+                $.LoadingOverlay("show");
+                
+                // ส่ง action ใน URL สำหรับ GET request
+                fetch(`${API_URL}?action=userFindAll`)
+                    .then(response => response.text())
+                    .then(responseText => {
+                        console.log("Response text:", responseText);
+                        
+                        try {
+                            const data = JSON.parse(responseText);
+                            console.log("Parsed data:", data);
+                            
+                            if (data.success) {
+                                userTable.clear();
+                                userTable.rows.add(data.data || []).draw();
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: data.message || 'Failed to load users',
+                                    confirmButtonColor: '#3b82f6'
+                                });
+                            }
+                        } catch (error) {
+                            console.error("JSON Parse Error:", error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Invalid response from server',
+                                confirmButtonColor: '#3b82f6'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Fetch Error:", error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to connect to the server. Please try again.',
+                            confirmButtonColor: '#3b82f6'
+                        });
+                    })
+                    .finally(() => {
+                        $.LoadingOverlay("hide");
+                    });
+            }
+            
+            function openAddUserModal() {
+                $('#modalTitle').text('Add New User');
+                $('#originalEmail').val('');
+                $('#userForm')[0].reset();
+                $('#userModal').removeClass('hidden');
+            }
+            
+            function closeUserModal() {
+                $('#userModal').addClass('hidden');
+                $('#userForm')[0].reset();
+                $('#userForm').validate().resetForm();
+                $('#name, #tel, #email, #role, #status').removeClass('border-red-500').addClass('border-blue-200');
+            }
+            
+            function handleEditUser() {
+                const email = $(this).data('email');
+                
+                $.LoadingOverlay("show");
+                
+                // ส่ง action ใน URL สำหรับ GET request
+                fetch(`${API_URL}?action=getUser&email=${email}`)
+                    .then(response => response.text())
+                    .then(responseText => {
+                        console.log("Get user response text:", responseText);
+                        
+                        try {
+                            const data = JSON.parse(responseText);
+                            console.log("Parsed user data:", data);
+                            
+                            if (data.success && data.data) {
+                                const user = data.data;
+                                
+                                $('#modalTitle').text('Edit User');
+                                $('#originalEmail').val(user.email);
+                                $('#name').val(user.name);
+                                $('#tel').val(user.tel);
+                                $('#email').val(user.email);
+                                $('#role').val(user.role);
+                                $('#status').val(user.status);
+                                
+                                $('#userModal').removeClass('hidden');
+                            } else {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Error',
+                                    text: data.message || 'Failed to load user data',
+                                    confirmButtonColor: '#3b82f6'
+                                });
+                            }
+                        } catch (error) {
+                            console.error("JSON Parse Error:", error);
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Invalid response from server',
+                                confirmButtonColor: '#3b82f6'
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Fetch Error:", error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to connect to the server. Please try again.',
+                            confirmButtonColor: '#3b82f6'
+                        });
+                    })
+                    .finally(() => {
+                        $.LoadingOverlay("hide");
+                    });
+            }
+            
+            function saveUser() {
+                const originalEmail = $('#originalEmail').val();
+                
+                $.LoadingOverlay("show");
+                
+                let data;
+                if (originalEmail) {
+                    // Update existing user
+                    data = {
+                        action: "updateUser", // ใส่ action ใน body
+                        email: originalEmail,
+                        name: $('#name').val(),
+                        tel: $('#tel').val(),
+                        role: $('#role').val(),
+                        status: $('#status').val()
+                    };
+                    
+                    // If email was changed, update it
+                    if ($('#email').val() !== originalEmail) {
+                        data.email = $('#email').val();
+                    }
+                } else {
+                    // Add new user
+                    data = {
+                        action: "createUser", // ใส่ action ใน body
+                        name: $('#name').val(),
+                        tel: $('#tel').val(),
+                        email: $('#email').val(),
+                        role: $('#role').val(),
+                        status: $('#status').val()
+                    };
+                }
+                
+                console.log("Sending data:", data);
+                
+                // ปรับการส่งข้อมูลเป็น text/plain ตามที่ backend ต้องการ
+                fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain', // เปลี่ยนเป็น text/plain
+                    },
+                    body: JSON.stringify(data), // ส่งเป็น JSON string
+                })
+                .then(response => response.text())
+                .then(responseText => {
+                    console.log("Response text:", responseText);
+                    
+                    try {
+                        const data = JSON.parse(responseText);
+                        console.log("Parsed response:", data);
+                        
+                        if (data.success) {
+                            const successMessage = originalEmail ? 'User updated successfully!' : 'User added successfully!';
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success',
+                                text: successMessage,
+                                confirmButtonColor: '#3b82f6'
+                            });
+                            
+                            closeUserModal();
+                            loadUsers();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message || 'Failed to save user',
+                                confirmButtonColor: '#3b82f6'
+                            });
+                        }
+                    } catch (error) {
+                        console.error("JSON Parse Error:", error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Invalid response from server',
+                            confirmButtonColor: '#3b82f6'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error("Fetch Error:", error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to connect to the server. Please try again.',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                })
+                .finally(() => {
+                    $.LoadingOverlay("hide");
+                });
+            }
+            
+            function handleDeleteUser() {
+                const email = $(this).data('email');
+                const userName = userTable.row($(this).closest('tr')).data().name;
+                
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: `Do you want to delete ${userName}?`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#ef4444',
+                    cancelButtonColor: '#6b7280',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        deleteUser(email);
+                    }
+                });
+            }
+            
+            function deleteUser(email) {
+                $.LoadingOverlay("show");
+                
+                const data = {
+                    action: "delUser", // ใส่ action ใน body
+                    email: email
+                };
+                
+                console.log("Sending delete data:", data);
+                
+                // ปรับการส่งข้อมูลเป็น text/plain ตามที่ backend ต้องการ
+                fetch(API_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'text/plain', // เปลี่ยนเป็น text/plain
+                    },
+                    body: JSON.stringify(data), // ส่งเป็น JSON string
+                })
+                .then(response => response.text())
+                .then(responseText => {
+                    console.log("Delete response text:", responseText);
+                    
+                    try {
+                        const data = JSON.parse(responseText);
+                        console.log("Parsed delete response:", data);
+                        
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Deleted!',
+                                text: 'User has been deleted.',
+                                confirmButtonColor: '#3b82f6'
+                            });
+                            
+                            loadUsers();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message || 'Failed to delete user',
+                                confirmButtonColor: '#3b82f6'
+                            });
+                        }
+                    } catch (error) {
+                        console.error("JSON Parse Error:", error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Invalid response from server',
+                            confirmButtonColor: '#3b82f6'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error("Fetch Error:", error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to connect to the server. Please try again.',
+                        confirmButtonColor: '#3b82f6'
+                    });
+                })
+                .finally(() => {
+                    $.LoadingOverlay("hide");
+                });
+            }
+        });
+    </script>
+</body></html>
